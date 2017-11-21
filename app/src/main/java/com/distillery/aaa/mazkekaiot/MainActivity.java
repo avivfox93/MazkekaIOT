@@ -58,7 +58,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
-        upnp.doPortForwarding();
         PeripheralManagerService manager = new PeripheralManagerService();
         List<String> portList = manager.getGpioList();
         msgHandel = new MessageHandler(new MessageHandler.killCallback() {
