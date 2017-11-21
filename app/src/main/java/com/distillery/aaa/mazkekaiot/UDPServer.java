@@ -24,7 +24,6 @@ public class UDPServer {
     private onClient clientListener;
     private Thread listen;
     private boolean sit = true;
-    private UPnP upnp;
     public ArrayList<Client> clientlist = new ArrayList<>();
 
     public UDPServer(int port, onReceive udpCallback, onClient clientListen){

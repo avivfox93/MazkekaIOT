@@ -2,15 +2,14 @@ package com.distillery.aaa.mazkekaiot;
 
 import android.util.Log;
 
-import com.offbynull.portmapper.PortMapperFactory;
-import com.offbynull.portmapper.gateway.Bus;
-import com.offbynull.portmapper.gateway.Gateway;
-import com.offbynull.portmapper.gateways.network.NetworkGateway;
-import com.offbynull.portmapper.gateways.process.ProcessGateway;
-import com.offbynull.portmapper.mapper.MappedPort;
-import com.offbynull.portmapper.mapper.PortMapper;
-import com.offbynull.portmapper.mapper.PortType;
 
+import org.fourthline.cling.UpnpService;
+import org.fourthline.cling.UpnpServiceImpl;
+import org.fourthline.cling.registry.RegistryListener;
+
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -18,26 +17,31 @@ import java.util.List;
  */
 
 public class UPnP {
+    private int PORT;
     // Start gateways
     public UPnP(int PORT) {
-        Gateway network = NetworkGateway.create();
-        Gateway process = ProcessGateway.create();
-        Bus networkBus = network.getBus();
-        Bus processBus = process.getBus();
+        this.PORT = PORT;
+    }
 
-        // Discover port forwarding devices and take the first one found
+    public void doPortForwarding() {
         try {
-            List<PortMapper> mappers = PortMapperFactory.discover(networkBus, processBus);
-            PortMapper mapper = mappers.get(0);
-            MappedPort mappedPort = mapper.mapPort(PortType.TCP, PORT, PORT, 60);
-            System.out.println("Port mapping added: " + mappedPort);
-            while(true) {
-                mappedPort = mapper.refreshPort(mappedPort, mappedPort.getLifetime() / 2L);
-                System.out.println("Port mapping refreshed: " + mappedPort);
-                Thread.sleep(mappedPort.getLifetime() * 1000L);
-            }
-        } catch (InterruptedException e) {
+            PortMapping[] desiredMapping = new PortMapping[2];
+            desiredMapping[0] = new PortMapping(PORT, InetAddress.getLocalHost().getHostAddress(),
+                    PortMapping.Protocol.TCP, " TCP POT Forwarding");
+
+
+            desiredMapping[1] = new PortMapping(PORT, InetAddress.getLocalHost().getHostAddress(),
+                    PortMapping.Protocol.UDP, " UDP POT Forwarding");
+
+
+            UpnpService upnpService = new UpnpServiceImpl();
+            RegistryListener registryListener = new PortMappingListener(desiredMapping);
+            upnpService.getRegistry().addListener(registryListener);
+
+            upnpService.getControlPoint().search();
+        }catch(UnknownHostException e){
             e.printStackTrace();
         }
+
     }
 }

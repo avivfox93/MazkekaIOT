@@ -3,6 +3,7 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'http://audiobox.keytwo.net' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'

@@ -23,6 +23,7 @@ public class MainActivity extends Activity {
     static final int PORT = 5657;
     float TEMP = 25;
     String SIT = "";
+    UPnP upnp;
     static UDPServer server;
     static Context cntx;
     private MessageHandler msgHandel;
@@ -57,6 +58,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
+        upnp.doPortForwarding();
         PeripheralManagerService manager = new PeripheralManagerService();
         List<String> portList = manager.getGpioList();
         msgHandel = new MessageHandler(new MessageHandler.killCallback() {
